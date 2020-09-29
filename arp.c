@@ -116,7 +116,7 @@ int arp_resolve (eth_iface_t * iface, ipv4_addr_t dest, mac_addr_t mac){
 
   } while ( ! (is_my_ip && is_a_reply));
 
-    fprintf("ESTA ES LA MAC QUE HEMOS OBTENIDO: %c\n",arp_frame_ptr->target_hardware_address); //PREGUNTAR
+    memcpy(mac, arp_frame_ptr->target_hardware_address, MAC_ADDR_SIZE);
 
 
   return 1; //Ha salido todo bien
