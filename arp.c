@@ -9,6 +9,27 @@
 #include <string.h>
 #include <netinet/in.h>
 
+/* Tamaño de la cabecera ARP (sin incluir el campo FCS) */
+#define ARP_FULL_LENGTH 28
+
+//El hardware type que siempre es 1 en ethernet
+#define HARDWARE_TYPE 1
+
+//Protocolo de IPv4
+#define IPV4_PROTOCOL 0x800
+
+//Protocolo de ARP
+#define ARP_PROTOCOL 0x806
+
+//El operation type de ARP -> 1 va a ser para request
+#define OPERATION_CODE_REQUEST_ARP 1
+
+//El operation type de ARP -> 2 va a ser para reply
+#define OPERATION_CODE_REPLY_ARP 2
+
+
+
+
 /* Cabecera de una trama ARP*/
 struct arp_frame {  //A nivel de red se llama paquete
 
@@ -46,9 +67,9 @@ int arp_resolve (eth_iface_t * iface, ipv4_addr_t dest, mac_addr_t mac){
   arp_frame.operation_code = htons(OPERATION_CODE_REQUEST_ARP);
 
   eth_getaddr(iface, arp_frame.source_hardware_address);  
-    memcpy(arp_frame.source_protocol_address, IPv4_ZERO_ADDR, IPv4_ADDR_SIZE);
+  memcpy(arp_frame.source_protocol_address, IPv4_ZERO_ADDR, IPv4_ADDR_SIZE);
   memset(arp_frame.target_hardware_address, 0x00, MAC_ADDR_SIZE);
-    memcpy(arp_frame.target_protocol_address, dest, IPv4_ADDR_SIZE);
+  memcpy(arp_frame.target_protocol_address, dest, IPv4_ADDR_SIZE);
 
   // Hay que enviar la trama a la dirección de broadcast
   err = eth_send(iface, MAC_BCAST_ADDR, ARP_PROTOCOL, &arp_frame, ARP_FULL_LENGTH);
