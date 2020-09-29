@@ -58,6 +58,8 @@ int arp_resolve (eth_iface_t * iface, ipv4_addr_t dest, mac_addr_t mac){
     int is_my_ip;
     int is_a_reply;
 
+    struct arp_frame * arp_frame_ptr = NULL;
+
 	/* Crear la Trama Ethernet y rellenar todos los campos */
   struct arp_frame arp_frame;
   arp_frame.hardware_type=htons(HARDWARE_TYPE);
@@ -72,9 +74,9 @@ int arp_resolve (eth_iface_t * iface, ipv4_addr_t dest, mac_addr_t mac){
   memcpy(arp_frame.target_protocol_address, dest, IPv4_ADDR_SIZE);
 
   // Hay que enviar la trama a la dirección de broadcast
-  err = eth_send(iface, MAC_BCAST_ADDR, ARP_PROTOCOL, &arp_frame, ARP_FULL_LENGTH);
+  err = eth_send(iface, MAC_BCAST_ADDR, ARP_PROTOCOL, (unsigned char*) &arp_frame, ARP_FULL_LENGTH);
   if (err == -1) {
-    fprintf(stderr, "%s: ERROR en arp_send()\n", myself);
+    fprintf(stderr, "ERROR en arp_send()\n");
     return -1; 
   }
 
@@ -96,7 +98,7 @@ int arp_resolve (eth_iface_t * iface, ipv4_addr_t dest, mac_addr_t mac){
         long int time_left = timerms_left(&timer);
 
         /* Recibir trama del interfaz Ethernet y procesar errores */
-        longitud_datos_recibidos = eth_recv (iface, mac_del_que_responda, ARP_PROTOCOL, arp_buffer, buffer_arp_length, time_left);
+        int longitud_datos_recibidos = eth_recv (iface, mac_del_que_responda, ARP_PROTOCOL, arp_buffer, buffer_arp_length, time_left);
         if (longitud_datos_recibidos < 0) {
         fprintf(stderr, "Los datos recibidos de ARP ERRORRRRRRR\n"); 
         return -1;
@@ -116,7 +118,7 @@ int arp_resolve (eth_iface_t * iface, ipv4_addr_t dest, mac_addr_t mac){
 
   } while ( ! (is_my_ip && is_a_reply));
 
-    memcpy(mac, arp_frame_ptr->target_hardware_address, MAC_ADDR_SIZE);
+    memcpy(mac, arp_frame_ptr->source_hardware_address, MAC_ADDR_SIZE);
 
 
   return 1; //Ha salido todo bien

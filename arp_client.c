@@ -52,7 +52,7 @@ int main (int argc, char * argv[] ){
     }
     else{
         mac_addr_str(mac_empty_rellena_arp_c, string_MAC_empty_rellena);
-        fprintf("La dirección MAC recibida es: %s\n", string_MAC_empty_rellena);
+        printf("La dirección MAC recibida es: %s\n", string_MAC_empty_rellena);
     }
    
 
