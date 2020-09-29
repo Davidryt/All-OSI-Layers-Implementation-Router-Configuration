@@ -7,6 +7,37 @@
 ipv4_addr_t IPv4_ZERO_ADDR = { 0, 0, 0, 0 };
 
 
+//Esto es el manejador de ip
+typedef struct ipv4_layer {
+    eth_iface_t * iface; 
+    ipv4_addr_t addr; 
+    ipv4_addr_t netmask; 
+    ipv4_route_table_t * routing_table;
+} ipv4_ layer_t ; 
+
+
+//Este es el frame de IP
+struct ip_frame{
+
+    int8_t version_cabecera;
+    uint8_t tipo_ip;  
+    uint16_t longitud_total_ip;
+    uint16_t identificador_ip;
+    uint16_t flag_mas_offset;
+    uint8_t ttl;
+    uint8_t protocolo_ip;
+    uint16_t checksum_ip;
+    ipv4_addr_t direccion_ip_origen;
+    ipv4_addr_t direccion_ip_destino;
+    unsigned char payload_ip[IPV4_MTU];
+
+}
+
+
+
+
+
+
 /* void ipv4_addr_str ( ipv4_addr_t addr, char* str );
  *
  * DESCRIPCIÓN:
@@ -103,5 +134,49 @@ uint16_t ipv4_checksum ( unsigned char * data, int len )
 
   return (uint16_t) sum;
 }
+
+
+
+ipv4_layer_t* ipv4_open(char * file_conf, char * file_conf_route) {
+
+    ipv4_layer_t * layer = malloc(sizeof(ipv4_layer_t));
+    /* 1. Crear layer -> routing_table */
+    /* 2. Leer direcciones y subred de file_conf */
+    /* 3. Leer tabla de reenvío IP de file_conf_route */
+    /* 4. Inicializar capa Ethernet con eth_open() */
+
+
+}
+
+
+int ipv4_close (ipv4_layer_t * layer) {
+    /* 1. Liberar table de rutas (layer -> routing_table) */
+    /* 2. Cerrar capa Ethernet con eth_close() */
+
+
+    free(layer);
+}
+
+
+
+int ipv4_send (ipv4_layer_t * layer, ipv4_addr_t dst, uint8_t protocol, unsigned char * payload, int payload_len) {
+
+
+}
+
+
+int ipv4_recv(ipv4_layer_t * layer, uint8_t protocol, unsigned char buffer [], ipv4_addr_t sender, int buf_len, long int timeout) {
+
+
+}
+
+
+
+
+
+
+
+
+
 
 
