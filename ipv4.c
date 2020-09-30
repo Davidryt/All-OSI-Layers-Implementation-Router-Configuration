@@ -145,16 +145,46 @@ ipv4_layer_t* ipv4_open(char * file_conf, char * file_conf_route) {
     /* 3. Leer tabla de reenvío IP de file_conf_route */
     /* 4. Inicializar capa Ethernet con eth_open() */
 
+    if (layer == NULL) {
+        fprintf(stderr, "ipv4_open(): ERROR en malloc()\n");
+        return NULL;
+    } 
 
+
+
+    
+    //Esto puede ser el punto 4
+    /* Abrir el interfaz "en crudo" subyacente */
+    eth_iface * eth_iface = eth_open(ipv4_layer->iface);
+    if (eth_iface == NULL) {
+        fprintf(stderr, "ipv4_open(): ERROR en eth_open()\n");
+        return NULL;
+    }  
+    layer->iface = eth_iface;
+
+
+
+
+    return layer;
 }
 
 
 int ipv4_close (ipv4_layer_t * layer) {
     /* 1. Liberar table de rutas (layer -> routing_table) */
+    
+
+
+
     /* 2. Cerrar capa Ethernet con eth_close() */
+    int err = -1;
 
+    if (layer != NULL) {
+        err = eth_close(layer->iface);
+        free(layer);
+    }
 
-    free(layer);
+    return err;
+
 }
 
 
