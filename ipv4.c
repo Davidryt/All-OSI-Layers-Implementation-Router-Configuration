@@ -8,6 +8,10 @@
 
 #define IP_HEADER_SIZE 20
 
+#define CAMPO_VERSION_MAS_CABECERA 0x45
+
+#define TTL 64
+
 
 /* Dirección IPv4 a cero: "0.0.0.0" */
 ipv4_addr_t IPv4_ZERO_ADDR = { 0, 0, 0, 0 };
@@ -25,7 +29,7 @@ typedef struct ipv4_layer {
 //Este es el frame de IP
 struct ip_frame{
 
-    int8_t version_cabecera;
+    int8_t version_mas_cabecera;
     uint8_t tipo_ip;  
     uint16_t longitud_total_ip;
     uint16_t identificador_ip;
@@ -213,12 +217,12 @@ int ipv4_send (ipv4_layer_t * layer, ipv4_addr_t dst, uint8_t protocol, unsigned
 
     /* Crear la Trama IPv4 y rellenar todos los campos */
     struct ip_frame ip_frame;
-    ip_frame.version_cabecera=htons();
+    ip_frame.version_mas_cabecera=htons(CAMPO_VERSION_MAS_CABECERA);
     ip_frame.tipo_ip=htons();
     ip_frame.longitud_total_ip=;
     ip_frame.identificador_ip=htons();
     ip_frame.flag_mas_offset=htons();
-    ip_frame.ttl=htons();
+    ip_frame.ttl=htons(TTL);
     ip_frame.protocolo_ip=htons(IPV4_PROTOCOL);
     ip_frame.checksum_ip=htons();
     memcpy(ip_frame.direccion_ip_origen, IPv4_ZERO_ADDR, IPv4_ADDR_SIZE);

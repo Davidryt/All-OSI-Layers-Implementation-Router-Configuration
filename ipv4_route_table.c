@@ -85,8 +85,45 @@ int ipv4_route_lookup ( ipv4_route_t * route, ipv4_addr_t addr )
           else  longitud route->mask
     */
     
+    ipv4_addr_t direccion_auxiliar;
+
+    for(int i=0; i<=3; i++){
+        direccion_auxiliar[i]=addr[i] & (route->subnet_mask[i]);
+    }
 
 
+    for(int i=0; i<=3; i++){
+
+        switch(direccion_auxiliar[i]){
+            case 255: 
+                prefix_length+=8;
+                break;
+            case 254: 
+                prefix_length+=7;
+                break;
+            case 252: 
+                prefix_length+=6;
+                break;
+            case 248: 
+                prefix_length+=5;
+                break;
+            case 240: 
+                prefix_length+=4;
+                break;
+            case 224: 
+                prefix_length+=3;
+                break;
+            case 192: 
+                prefix_length+=2;
+                break;
+            case 128: 
+                prefix_length+=1;
+                break;
+            default: 
+                prefix_length+=0;
+        }
+
+    }
 
     return prefix_length;
 }
