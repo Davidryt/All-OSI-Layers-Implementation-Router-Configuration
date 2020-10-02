@@ -100,15 +100,14 @@ int arp_resolve (eth_iface_t * iface, ipv4_addr_t dest, mac_addr_t mac){
         /* Recibir trama del interfaz Ethernet y procesar errores */
         int longitud_datos_recibidos = eth_recv (iface, mac_del_que_responda, ARP_PROTOCOL, arp_buffer, buffer_arp_length, time_left);
         if (longitud_datos_recibidos < 0) {
-        fprintf(stderr, "Los datos recibidos de ARP ERRORRRRRRR\n"); 
-        return -1;
+            fprintf(stderr, "Los datos recibidos de ARP ERRORRRRRRR\n"); 
+            return -1;
         } else if (longitud_datos_recibidos == 0) {
-        /* Timeout! */
-        return 0;
+            /* Timeout! */
+            return 0;
         } else if (longitud_datos_recibidos < ARP_FULL_LENGTH) {
-        fprintf(stderr, "Trama de tamaño invalido: %d bytes\n",
-              longitud_datos_recibidos);
-        continue;
+            fprintf(stderr, "Trama de tamaño invalido: %d bytes\n", longitud_datos_recibidos);
+            continue;
     }
 
     /* Comprobar si es la trama que estamos buscando */

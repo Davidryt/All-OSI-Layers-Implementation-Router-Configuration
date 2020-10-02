@@ -75,11 +75,20 @@ ipv4_route_t * ipv4_route_create
  */
 int ipv4_route_lookup ( ipv4_route_t * route, ipv4_addr_t addr )
 {
-  int prefix_length = -1;
+    int prefix_length = -1;
 
-  /* TODO: Debe implementar este método */
+    /* TODO: Debe implementar este método */
 
-  return prefix_length;
+    /* 1. Aplicar route->mask a la dirección destino
+       2. Comparar dst_masked con route->subnet->addr
+       3. Devolver -1: err=-1 si dst_masked!=route->subnet=addr
+          else  longitud route->mask
+    */
+    
+
+
+
+    return prefix_length;
 }
 
 /* void ipv4_route_print ( ipv4_route_t * route );
