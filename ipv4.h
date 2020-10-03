@@ -1,6 +1,8 @@
 #ifndef _IPv4_H
 #define _IPv4_H
 
+#include "eth.h"
+
 #include <stdint.h>
 
 #define IPv4_ADDR_SIZE 4
