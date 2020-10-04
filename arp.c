@@ -104,6 +104,7 @@ int arp_resolve (eth_iface_t * iface, ipv4_addr_t dest, mac_addr_t mac){
             return -1;
         } else if (longitud_datos_recibidos == 0) {
             /* Timeout! */
+            fprintf(stderr, "En eth_recv ha habido un timeout \n");
             return 0;
         } else if (longitud_datos_recibidos < ARP_FULL_LENGTH) {
             fprintf(stderr, "Trama de tamaño invalido: %d bytes\n", longitud_datos_recibidos);

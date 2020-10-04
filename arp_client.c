@@ -57,9 +57,13 @@ int main (int argc, char * argv[] ){
    
 
     /* Cerrar interfaz Ethernet */
-  printf("Cerrando interfaz Ethernet %s.\n", iface_name);
-  eth_close(eth_iface);
+    printf("Cerrando interfaz Ethernet %s.\n", iface_name);
+    int error_cerrar=eth_close(eth_iface);
 
-  return 0;
+    if(error_cerrar==-1){
+        fprintf(stderr, "Error con eth_close en arp\n");
+    }
+
+    return 0;
 
 }

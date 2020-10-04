@@ -4,8 +4,6 @@
 #include <stdlib.h>
 
 
-#define IP_FULL_LENGTH 
-
 #define IP_HEADER_SIZE 20
 
 #define CAMPO_VERSION_MAS_CABECERA 0x45
@@ -23,7 +21,7 @@ typedef struct ipv4_layer {
     ipv4_addr_t addr; 
     ipv4_addr_t netmask; 
     ipv4_route_table_t * routing_table;
-} ipv4_ layer_t ; 
+} ipv4_ layer_t; 
 
 
 //Este es el frame de IP
@@ -147,6 +145,7 @@ uint16_t ipv4_checksum ( unsigned char * data, int len )
 
 
 
+//IPv4 devuelve el layer entero
 ipv4_layer_t* ipv4_open(char * file_conf, char * file_conf_route) {
 
     ipv4_layer_t * layer = malloc(sizeof(ipv4_layer_t));
@@ -160,12 +159,34 @@ ipv4_layer_t* ipv4_open(char * file_conf, char * file_conf_route) {
         return NULL;
     } 
 
+    /* 2. Leer direcciones y subred de file_conf */
+    //Ahora rellenamos la estructura manejadora -> la layer
+    char interfaz_temporal[IFACE_NAME_MAX_LENGTH];
+    int err_read_config=ipv4_config_read(file_conf, interfaz_temporal, layer->addr, layer->netmask);
 
+    if(err_read_config==-1){
+        fprintf(stderr, "ipv4_open(): ERROR en ipv4_config_read()\n");
+    }
+
+    /* 1. Crear layer -> routing_table */
+    layer->routing_table=ipv4_route_table_create();
+
+    if(layer->routing_table == NULL){
+        fprintf(stderr, "ipv4_open(): ERROR en ipv4_route_create()\n");
+    }
+
+
+    /* 3. Leer tabla de reenvío IP de file_conf_route */
+    int err_read_route_table=ipv4_route_table_read(file_conf_route, layer->routing_table);
+
+    if(err_read_route_table==-1){
+        fprintf(stderr, "ipv4_open(): ERROR en ipv4_route_table_read()\n");
+    }
 
     
     //Esto puede ser el punto 4
-    /* Abrir el interfaz "en crudo" subyacente */
-    eth_iface * eth_iface = eth_open(ipv4_layer->iface);
+    /* Abrir el interfaz subyacente */
+    eth_iface * eth_iface = eth_open(interfaz_temporal);
     if (eth_iface == NULL) {
         fprintf(stderr, "ipv4_open(): ERROR en eth_open()\n");
         return NULL;
@@ -173,24 +194,24 @@ ipv4_layer_t* ipv4_open(char * file_conf, char * file_conf_route) {
     layer->iface = eth_iface;
 
 
-
-
     return layer;
 }
 
 
+//Devuelve si hemos tenido errores al cerrar eth_close: 0 si todo bien y -1 si ha habido error
 int ipv4_close (ipv4_layer_t * layer) {
     /* 1. Liberar table de rutas (layer -> routing_table) */
     
-
-
+    ipv4_route_table_free(layer -> routing_table);
 
     /* 2. Cerrar capa Ethernet con eth_close() */
     int err = -1;
+    err = eth_close(layer->iface);
+    free(layer);
 
-    if (layer != NULL) {
-        err = eth_close(layer->iface);
-        free(layer);
+    if(err == -1) {
+        fprintf(stderr, "ipv4_close(): ERROR en eth_close()\n");
+        return -1;   
     }
 
     return err;
@@ -201,8 +222,7 @@ int ipv4_close (ipv4_layer_t * layer) {
 /* 1. Llamar a route_table_lookup para que nos devuelva la ruta de salida
    2. Crear la cabecer IPv4 y rellenar los campos
    3. Hacer un arp_resolve: OJO puede haber dos casos (que la dirección destino esté en mi subred o no)
-   4. Enviar con eth_send
-*/
+   4. Enviar con eth_send */
 
 int ipv4_send (ipv4_layer_t * layer, ipv4_addr_t dst, uint8_t protocol, unsigned char * payload, int payload_len) {
 
@@ -212,29 +232,36 @@ int ipv4_send (ipv4_layer_t * layer, ipv4_addr_t dst, uint8_t protocol, unsigned
         return -1;
     }
 
-    //El punto 1 
+    //1. Llamar a route_table_lookup para que nos devuelva la ruta de salida 
     ipv4_route_t ruta_salida=ipv4_route_table_lookup(layer->routing_table, dst);
+
+    if(ruta_salida == NULL){
+        fprintf(stderr, "ipv4_send(): ERROR: ipv4_route_table_lookup\n");
+    }
 
     /* Crear la Trama IPv4 y rellenar todos los campos */
     struct ip_frame ip_frame;
     ip_frame.version_mas_cabecera=htons(CAMPO_VERSION_MAS_CABECERA);
-    ip_frame.tipo_ip=htons();
-    ip_frame.longitud_total_ip=;
-    ip_frame.identificador_ip=htons();
-    ip_frame.flag_mas_offset=htons();
+    ip_frame.tipo_ip=0;
+    ip_frame.longitud_total_ip=htons(IP_HEADER_SIZE+payload_len);
+    ip_frame.identificador_ip=htons(2807);
+    ip_frame.flag_mas_offset=0;
     ip_frame.ttl=htons(TTL);
-    ip_frame.protocolo_ip=htons(IPV4_PROTOCOL);
-    ip_frame.checksum_ip=htons();
-    memcpy(ip_frame.direccion_ip_origen, IPv4_ZERO_ADDR, IPv4_ADDR_SIZE);
-    memcpy(ip_frame.direccion_ip_destino, IPv4_ZERO_ADDR, IPv4_ADDR_SIZE);
+    ip_frame.protocolo_ip=htons(protocol);
+    ip_frame.checksum_ip=htons(0);  //preguntar
+    memcpy(ip_frame.direccion_ip_origen, layer->addr, IPv4_ADDR_SIZE);
+    memcpy(ip_frame.direccion_ip_destino, dst, IPv4_ADDR_SIZE);
+    memcpy(ip_frame.payload_ip, payload, payload_len);
 
 
 
+    //3. Hacer un arp_resolve: OJO puede haber dos casos (que la dirección destino esté en mi subred o no)
     int resultado_arp_resolve=0; 
     mac_addr_t mac_del_que_responda;
 
     //Hacer un arp_resolve: OJO puede haber dos casos (que la dirección destino esté en mi subred o no)
-    if(ruta_salida){ //Este el caso de mi subred->el arp_resolve lo hago a la dirección de destino
+    if(memcmp(ruta_salida->gateway_addr, IPv4_ZERO_ADDR, IPv4_ADDR_SIZE)==0){ 
+    //Este el caso de mi subred->el arp_resolve lo hago a la dirección de destino
         resultado_arp_resolve = arp_resolve(layer->iface, dst, mac_del_que_responda);
     }
     else{ //Este el caso de que no esté en mi subred->el arp_resolve lo hago al gateway
@@ -248,14 +275,15 @@ int ipv4_send (ipv4_layer_t * layer, ipv4_addr_t dst, uint8_t protocol, unsigned
     }
 
 
+    //4. Enviar con eth_send 
     /* Enviar la trama IP creada con eth_send() y comprobar errores */
     int err=0;
     //eth_send devuelve -1 si ha habido un error u otro número >0 que es el número de bytes que han podido ser enviados
-    err = eth_send(layer->iface, (unsigned char *) &ip_frame, IP_FULL_LENGTH);
-    if (err == -1) {
+    err = eth_send(layer->iface, mac_del_que_responda, IPV4_PROTOCOL, (unsigned char *) &ip_frame, (IP_HEADER_SIZE+payload_len));
+    if (err != (IP_HEADER_SIZE+payload_len)) { //Si manda menos datos de los que hemos pedido está MAL
         fprintf(stderr, "ipv4_send(): ERROR en eth_send()\n");
         return -1;
-    }
+    } //preguntar
 
 
     /* Devolver el número de bytes de datos recibidos */
@@ -269,18 +297,21 @@ int ipv4_send (ipv4_layer_t * layer, ipv4_addr_t dst, uint8_t protocol, unsigned
    3. Comprobar que el protocolo es el nuestro 
 */
 
-int ipv4_recv(ipv4_layer_t * layer, uint8_t protocol, unsigned char buffer [], ipv4_addr_t sender, int buf_len, long int timeout) {
-
-    //Para convertir el payload eth a IP se puede hacer así (lo dijo en clase)
-    ipv4_frame_t * ip_header=NULL;
-    ip_header=(ipv4_frame_t *)payload;
+int ipv4_recv(ipv4_layer_t * layer, uint8_t protocol, unsigned char buffer [], ipv4_addr_t sender, int buf_len, long int timeout){
 
     /* Inicializar temporizador para mantener timeout si se reciben tramas con tipo incorrecto. */
     timerms_t timer;
     timerms_reset(&timer, timeout);
 
-    int buffer_ip_length = IP_FULL_LENGTH;
+    int buffer_ip_length = IP_HEADER_SIZE+buf_len;
     unsigned char ip_buffer[buffer_ip_length];
+
+    mac_addr_t mac_del_que_responda;
+
+    struct ip_frame * ip_frame_ptr = NULL;
+
+    int is_my_ip;
+    int is_target_type;
 
     do {
         timerms_elapsed(&timer); //Devuelve el tiempo cada iteración
@@ -293,19 +324,48 @@ int ipv4_recv(ipv4_layer_t * layer, uint8_t protocol, unsigned char buffer [], i
             return -1;
         } else if (longitud_datos_recibidos == 0) {
             /* Timeout! */
+            fprintf(stderr, "En eth_recv ha habido un timeout \n");
             return 0;
         } else if (longitud_datos_recibidos < IP_HEADER_SIZE) {
             fprintf(stderr, "Trama de tamaño invalido: %d bytes\n", longitud_datos_recibidos);
             continue;
         }
 
+
         /* Comprobar si es la trama que estamos buscando */
-        eth_frame_ptr = (struct eth_frame *) eth_buffer;
-        is_my_mac = (memcmp(eth_frame_ptr->dest_addr, iface->mac_address, MAC_ADDR_SIZE) == 0);
-        is_target_type = (ntohs(eth_frame_ptr->type) == type);
+        ip_frame_ptr = (struct ip_frame *) ip_buffer;
 
-    } while ( ! (is_my_mac && is_target_type) );
+        //OJOOO hay que comprobar el checksum
+        uint16_t checksum_temporal=ntohs(ip_buffer->checksum_ip); //Este es el que hemos recibido del paquete
+        uint16_t checksum_calculado=ipv4_checksum((unsigned char *)ip_frame_ptr, IP_HEADER_SIZE);  //preguntar
 
+        if(checksum_temporal != checksum_calculado){
+            fprintf(stderr, "El checksum es incorrecto\n");
+            //preguntar qué hay que hacer
+        }
+
+        is_my_ip = (memcmp(ip_frame_ptr->direccion_ip_destino, layer->addr, IPv4_ADDR_SIZE) == 0);
+        is_target_type = (ntohs(ip_frame_ptr->tipo_ip) == protocol);
+
+    } while ( ! (is_my_ip && is_target_type) );
+
+
+    /* Trama recibida con 'tipo' indicado. Copiar datos y dirección MAC origen */
+    memcpy(sender, ip_frame_ptr->direccion_ip_origen, IPv4_ADDR_SIZE);
+    payload_len = ip_frame->longitud_total_ip-IP_HEADER_SIZE;
+    if (buf_len > payload_len) {
+        buf_len = payload_len; //Reduce el tamaño del buffer al tamaño de datos útiles recibidos
+    }
+    memcpy(buffer, ip_frame_ptr->payload_ip, buf_len);
+
+    return payload_len;
+
+
+
+    //preguntar dónde hay que ponerlo
+    //Para convertir el payload eth a IP se puede hacer así (lo dijo en clase)
+    ipv4_frame_t * ip_header=NULL;
+    ip_header=(ipv4_frame_t *)payload;
 
 }
 
