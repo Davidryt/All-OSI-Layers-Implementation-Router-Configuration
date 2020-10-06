@@ -1,8 +1,6 @@
 #ifndef _IPv4_H
 #define _IPv4_H
 
-#include "eth.h"
-
 #include <stdint.h>
 
 #define IPv4_ADDR_SIZE 4
@@ -20,6 +18,8 @@ extern ipv4_addr_t IPv4_ZERO_ADDR;
 #define IPV4_CABECERA 20
 
 #define IPV4_MTU (ETH_MTU-IPV4_CABECERA)
+
+typedef struct ipv4_layer ipv4_layer_t;
 
 
 /* void ipv4_addr_str ( ipv4_addr_t addr, char* str );

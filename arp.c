@@ -15,9 +15,6 @@
 //El hardware type que siempre es 1 en ethernet
 #define HARDWARE_TYPE 1
 
-//Protocolo de IPv4
-#define IPV4_PROTOCOL 0x800
-
 //Protocolo de ARP
 #define ARP_PROTOCOL 0x806
 
@@ -49,7 +46,7 @@ struct arp_frame {  //A nivel de red se llama paquete
 
 
 //Función resolve que me da la dirección MAC de una dirección IP
-int arp_resolve (eth_iface_t * iface, ipv4_addr_t dest, mac_addr_t mac){
+int arp_resolve (eth_iface_t * iface, ipv4_addr_t direccion_ip_origen, ipv4_addr_t dest, mac_addr_t mac){
 
     int err=0; //Mirar el send de esta función
 
@@ -69,7 +66,7 @@ int arp_resolve (eth_iface_t * iface, ipv4_addr_t dest, mac_addr_t mac){
   arp_frame.operation_code = htons(OPERATION_CODE_REQUEST_ARP);
 
   eth_getaddr(iface, arp_frame.source_hardware_address);  
-  memcpy(arp_frame.source_protocol_address, IPv4_ZERO_ADDR, IPv4_ADDR_SIZE);
+  memcpy(arp_frame.source_protocol_address, direccion_ip_origen, IPv4_ADDR_SIZE);
   memset(arp_frame.target_hardware_address, 0x00, MAC_ADDR_SIZE);
   memcpy(arp_frame.target_protocol_address, dest, IPv4_ADDR_SIZE);
 
