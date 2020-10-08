@@ -14,8 +14,8 @@ int main ( int argc, char * argv[]){  //preguntar si la longitud es optativa
     char * myself = basename(argv[0]);
     if (argc != 4) {
         printf("Uso: %s <fichero.txt> <route_table> <long>\n", myself);
-        printf("        <fichero.txt>: Fichero d etexto del cliente\n");
-        printf("        <route_table>: La route table del cliente\n");
+        printf("        <fichero.txt>: Fichero de texto del servidor\n");
+        printf("        <route_table>: La route table del servidor\n");
         printf("        <long>: Longitud de los datos\n");
         exit(-1);
     }
