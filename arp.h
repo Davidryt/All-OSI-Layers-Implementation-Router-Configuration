@@ -1,8 +1,6 @@
 #include "eth.h"
 #include "ipv4.h"
 
-//Protocolo de IPv4
-#define IPV4_PROTOCOL 0x800
 
 //void ipv4_addr_str(ipv4_addr_t addr , char str[]);
 //int ipv4_str_addr( char * str , ipv4_addr_t addr);

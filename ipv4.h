@@ -19,6 +19,11 @@ extern ipv4_addr_t IPv4_ZERO_ADDR;
 
 #define IPV4_MTU (ETH_MTU-IPV4_CABECERA)
 
+//Protocolo de IPv4
+#define IPV4_PROTOCOL 0x800
+
+
+
 typedef struct ipv4_layer ipv4_layer_t;
 
 

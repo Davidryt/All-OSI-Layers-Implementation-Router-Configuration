@@ -7,6 +7,11 @@
 #include <timerms.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <libgen.h>
+
 
 
 #define IP_HEADER_SIZE 20
@@ -172,6 +177,17 @@ ipv4_layer_t* ipv4_open(char * file_conf, char * file_conf_route) {
         fprintf(stderr, "ipv4_open(): ERROR en ipv4_config_read()\n");
     }
 
+
+
+//Esto para ver errores en el servidor
+char patata[IPv4_STR_MAX_LENGTH];
+ipv4_addr_str(layer->addr, patata);
+printf("HOLAAAAAAA %s\n", patata);
+printf("HOLAAAAAAA2 %s\n", layer->iface);
+
+
+
+
     /* 1. Crear layer -> routing_table */
     layer->routing_table=ipv4_route_table_create();
 
@@ -245,7 +261,7 @@ int ipv4_send (ipv4_layer_t * layer, ipv4_addr_t dst, uint8_t protocol, unsigned
 
     /* Crear la Trama IPv4 y rellenar todos los campos */
     struct ip_frame ip_frame;
-    ip_frame.version_mas_cabecera=htons(CAMPO_VERSION_MAS_CABECERA);
+    ip_frame.version_mas_cabecera=(CAMPO_VERSION_MAS_CABECERA);
     ip_frame.tipo_ip=0;
     ip_frame.longitud_total_ip=htons(IP_HEADER_SIZE+payload_len);
     ip_frame.identificador_ip=htons(2807);
@@ -345,7 +361,7 @@ int ipv4_recv(ipv4_layer_t * layer, uint8_t protocol, unsigned char buffer [], i
         /* Comprobar si es la trama que estamos buscando */
         ip_frame_ptr = (struct ip_frame *) ip_buffer;
 
-        //OJOOO hay que comprobar el checksum
+        /*//OJOOO hay que comprobar el checksum
         uint16_t checksum_temporal=ntohs(ip_frame_ptr->checksum_ip); //Este es el que hemos recibido del paquete
         ip_frame_ptr->checksum_ip=htons(0);
         uint16_t checksum_calculado=ipv4_checksum((unsigned char *)ip_frame_ptr, IP_HEADER_SIZE);  
@@ -353,7 +369,7 @@ int ipv4_recv(ipv4_layer_t * layer, uint8_t protocol, unsigned char buffer [], i
         if(checksum_temporal != checksum_calculado){
             fprintf(stderr, "El checksum es incorrecto\n");
             continue;
-        }
+        }*/
 
         is_my_ip = (memcmp(ip_frame_ptr->direccion_ip_destino, layer->addr, IPv4_ADDR_SIZE) == 0);
         is_target_type = (ntohs(ip_frame_ptr->tipo_ip) == protocol);

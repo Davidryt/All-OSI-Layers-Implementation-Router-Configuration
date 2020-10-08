@@ -1,4 +1,5 @@
 #include "ipv4.h"
+#include "eth.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,7 +33,7 @@ int main ( int argc, char * argv[]){  //preguntar si la longitud es optativa
     /* Abrir la interfaz IPv4 */
     ipv4_layer_t * ipv4_layer = ipv4_open(ipv4_config_server, ipv4_route_table_server);
     if (ipv4_layer == NULL) {
-        fprintf(stderr, "ERROR en ipv4_open en el servidor(\"%s\")\n", ipv4_layer);
+        fprintf(stderr, "ERROR en ipv4_open en el servidor(\"%s\")\n", myself);
         exit(-1);
     }
   
@@ -44,13 +45,17 @@ int main ( int argc, char * argv[]){  //preguntar si la longitud es optativa
     char direccion_origen_string[IPv4_STR_MAX_LENGTH];
     char direccion_nuestra_string[IPv4_STR_MAX_LENGTH];
 
+    /*ipv4_addr_str(ipv4_layer->addr, direccion_nuestra_string);
+    printf("Enviando al Cliente Ethernet (%s):\n", direccion_nuestra_string);*/
+       
+
     while(1) {
         /* Recibir trama IPv4 del Cliente */
         long int timeout = -1;
 
         printf("Escuchando tramas IPv4 (tipo=0x800) ...\n");
     
-        int payload_len = ipv4_recv(ipv4_layer, IPV4_PROTOCOL, buffer, direccion_origen, longitud_datos_int, timeout);
+        int payload_len = ipv4_recv(ipv4_layer, (uint8_t)IPV4_PROTOCOL, buffer, direccion_origen, longitud_datos_int, timeout);
         if (payload_len == -1) {
             fprintf(stderr, "%s: ERROR en ipv4_recv()\n", myself);
             exit(-1);
@@ -62,11 +67,12 @@ int main ( int argc, char * argv[]){  //preguntar si la longitud es optativa
         print_pkt(buffer, payload_len, 0);
 
         /* Enviar la misma trama IPv4 de vuelta al Cliente */
-        ipv4_addr_str(ipv4_layer->addr, direccion_nuestra_string);
-        printf("Enviando %d bytes al Cliente Ethernet (%s):\n", payload_len, direccion_nuestra_string);
+        //ipv4_addr_str(ipv4_layer->addr, direccion_nuestra_string);
+        //printf("Enviando %d bytes al Cliente Ethernet (%s):\n", payload_len, direccion_nuestra_string);
+        printf("Enviando %d bytes al Cliente Ethernet\n", payload_len);
         print_pkt(buffer, payload_len, 0);
 
-        int datos_enviados_vuelta = ipv4_send(ipv4_layer, direccion_origen, IPV4_PROTOCOL, buffer, longitud_datos_int);
+        int datos_enviados_vuelta = ipv4_send(ipv4_layer, direccion_origen, (uint8_t)IPV4_PROTOCOL, buffer, longitud_datos_int);
         if (datos_enviados_vuelta == -1) {
             fprintf(stderr, "%s: ERROR en ipv4_send()\n", myself);
         }
