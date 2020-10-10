@@ -1,5 +1,4 @@
 # ipv4_route_table_client.txt
 #
-# SubnetAddr    SubnetMask      Iface    Gateway
-0.0.0.0         0.0.0.0         eth1     192.100.100.102   
+# SubnetAddr    SubnetMask      Iface    Gateway   
 192.100.100.0     255.255.255.0   eth1     0.0.0.0

@@ -1,6 +1,9 @@
 #include "ipv4.h"
 #include "eth.h"
 
+#include "ipv4_route_table.h"
+#include "ipv4_config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -13,7 +16,7 @@ int main ( int argc, char * argv[]){
     /* Mostrar mensaje de ayuda si el número de argumentos es incorrecto */
     char * myself = basename(argv[0]);
     if (argc != 5) {
-        printf("Uso: %s <direccion_ip> <fichero.txt> <route_table> <long> [<long>]\n", myself);
+        printf("Uso: %s <direccion_ip> <fichero.txt> <route_table> <long>\n", myself);
         printf("        <direccion_ip>: La dirección IP destino\n");
         printf("        <fichero.txt>: Fichero de texto del cliente\n");
         printf("        <route_table>: La route table del cliente\n");
@@ -70,6 +73,7 @@ printf("Enviando al Cliente Ethernet (%s):\n", direccion_nuestra_string);*/
     }
     else if(bytes_enviados>0){  //imprimirlo por pantalla
         printf("Se han enviado en ipv4_send(): %d\n", bytes_enviados);
+        //return bytes_enviados; //cambio
     }   
 
 
@@ -90,6 +94,7 @@ printf("Enviando al Cliente Ethernet (%s):\n", direccion_nuestra_string);*/
         ipv4_addr_str(ip_origen_envio_paquete_ip, direccion_origen_string);
         printf("Recibidos %d bytes del Servidor IPv4 (%s)\n", longitud_datos_recibidos, direccion_origen_string);
         print_pkt(buffer, longitud_datos_recibidos, 0); 
+        //return longitud_datos_recibidos; //cambio
     }
 
 

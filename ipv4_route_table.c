@@ -75,7 +75,7 @@ ipv4_route_t * ipv4_route_create
  */
 int ipv4_route_lookup ( ipv4_route_t * route, ipv4_addr_t addr )
 {
-    int prefix_length = -1;
+    int prefix_length = 0; //cambio
 
     /* TODO: Debe implementar este método */
 
@@ -88,42 +88,53 @@ int ipv4_route_lookup ( ipv4_route_t * route, ipv4_addr_t addr )
     ipv4_addr_t direccion_auxiliar;
 
     for(int i=0; i<=3; i++){
-        direccion_auxiliar[i]=addr[i] & (route->subnet_mask[i]);
+        direccion_auxiliar[i]=(addr[i]) & (route->subnet_mask[i]);
+        //printf("En mi direccioón auxiliar en [%d] tengo %d\n", i, direccion_auxiliar[i]);
     }
 
 
     for(int i=0; i<=3; i++){
 
-        switch(direccion_auxiliar[i]){
-            case 255: 
-                prefix_length+=8;
-                break;
-            case 254: 
-                prefix_length+=7;
-                break;
-            case 252: 
-                prefix_length+=6;
-                break;
-            case 248: 
-                prefix_length+=5;
-                break;
-            case 240: 
-                prefix_length+=4;
-                break;
-            case 224: 
-                prefix_length+=3;
-                break;
-            case 192: 
-                prefix_length+=2;
-                break;
-            case 128: 
-                prefix_length+=1;
-                break;
-            default: 
-                prefix_length+=0;
+        if(direccion_auxiliar[i]!=(route->subnet_addr[i])){
+            prefix_length = -1;
+        }
+
+        if(direccion_auxiliar[i]==(route->subnet_addr[i])){
+
+            switch(route->subnet_mask[i]){
+                case 255: 
+                    prefix_length+=8;
+                    break;
+                case 254: 
+                    prefix_length+=7;
+                    break;
+                case 252: 
+                    prefix_length+=6;
+                    break;
+                case 248: 
+                    prefix_length+=5;
+                    break;
+                case 240: 
+                    prefix_length+=4;
+                    break;
+                case 224: 
+                    prefix_length+=3;
+                    break;
+                case 192: 
+                    prefix_length+=2;
+                    break;
+                case 128: 
+                    prefix_length+=1;
+                    break;
+                default: 
+                    prefix_length+=0;
+            }
+
         }
 
     }
+
+    printf("El prefijo que devuelve la función lookup es: %d\n", prefix_length);
 
     return prefix_length;
 }
@@ -451,7 +462,7 @@ ipv4_route_t * ipv4_route_table_lookup ( ipv4_route_table_t * table,
       }
     }
   }
-  
+
   return best_route;
 }
 

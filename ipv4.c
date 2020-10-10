@@ -261,6 +261,7 @@ int ipv4_send (ipv4_layer_t * layer, ipv4_addr_t dst, uint8_t protocol, unsigned
 
     /* Crear la Trama IPv4 y rellenar todos los campos */
     struct ip_frame ip_frame;
+
     ip_frame.version_mas_cabecera=(CAMPO_VERSION_MAS_CABECERA);
     ip_frame.tipo_ip=0;
     ip_frame.longitud_total_ip=htons(IP_HEADER_SIZE+payload_len);
@@ -290,9 +291,12 @@ int ipv4_send (ipv4_layer_t * layer, ipv4_addr_t dst, uint8_t protocol, unsigned
     if(memcmp(ruta_salida->gateway_addr, IPv4_ZERO_ADDR, IPv4_ADDR_SIZE)==0){ 
     //Este el caso de mi subred->el arp_resolve lo hago a la dirección de destino
         resultado_arp_resolve = arp_resolve(layer->iface, layer->addr, dst, mac_del_que_responda);
+
+        printf("ARP resolve en mi subred en la función send()\n");
     }
     else{ //Este el caso de que no esté en mi subred->el arp_resolve lo hago al gateway
         resultado_arp_resolve = arp_resolve(layer->iface, layer->addr, ruta_salida->gateway_addr, mac_del_que_responda);
+        printf("ARP resolve en otra subred en la función send()\n");
     }
 
     //Comprobar que arp_resolve ha salido bien
@@ -313,6 +317,7 @@ int ipv4_send (ipv4_layer_t * layer, ipv4_addr_t dst, uint8_t protocol, unsigned
     }
 
     /* Devolver el número de bytes de datos recibidos */
+    printf("Los datos enviados en la función ipv4_send() son: %d\n", err);
     return (err - IP_HEADER_SIZE);
 
 }
@@ -372,14 +377,15 @@ int ipv4_recv(ipv4_layer_t * layer, uint8_t protocol, unsigned char buffer [], i
         }*/
 
         is_my_ip = (memcmp(ip_frame_ptr->direccion_ip_destino, layer->addr, IPv4_ADDR_SIZE) == 0);
-        is_target_type = (ntohs(ip_frame_ptr->tipo_ip) == protocol);
+        //is_target_type = (ntohs(ip_frame_ptr->tipo_ip) == protocol);
+        is_target_type = ((ip_frame_ptr->tipo_ip) == protocol);
 
     } while ( ! (is_my_ip && is_target_type) );
 
 
     /* Trama recibida con 'tipo' indicado. Copiar datos y dirección MAC origen */
     memcpy(sender, ip_frame_ptr->direccion_ip_origen, IPv4_ADDR_SIZE);
-    int payload_len = ip_frame_ptr->longitud_total_ip-IP_HEADER_SIZE;
+    int payload_len = (ip_frame_ptr->longitud_total_ip)-IP_HEADER_SIZE;
     if (buf_len > payload_len) {
         buf_len = payload_len; //Reduce el tamaño del buffer al tamaño de datos útiles recibidos
     }
