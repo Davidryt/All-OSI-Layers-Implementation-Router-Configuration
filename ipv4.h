@@ -20,7 +20,7 @@ extern ipv4_addr_t IPv4_ZERO_ADDR;
 #define IPV4_MTU (ETH_MTU-IPV4_CABECERA)
 
 //Protocolo de IPv4
-#define IPV4_PROTOCOL 0x800
+#define IPV4_PROTOCOL 0x0800
 
 
 

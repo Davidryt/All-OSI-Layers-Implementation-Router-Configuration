@@ -16,7 +16,7 @@
 #define HARDWARE_TYPE 1
 
 //Protocolo de ARP
-#define ARP_PROTOCOL 0x806
+#define ARP_PROTOCOL 0x0806
 
 //El operation type de ARP -> 1 va a ser para request
 #define OPERATION_CODE_REQUEST_ARP 1

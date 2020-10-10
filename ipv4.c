@@ -180,10 +180,10 @@ ipv4_layer_t* ipv4_open(char * file_conf, char * file_conf_route) {
 
 
 //Esto para ver errores en el servidor
-char patata[IPv4_STR_MAX_LENGTH];
+/*char patata[IPv4_STR_MAX_LENGTH];
 ipv4_addr_str(layer->addr, patata);
 printf("HOLAAAAAAA %s\n", patata);
-printf("HOLAAAAAAA2 %s\n", layer->iface);
+printf("HOLAAAAAAA2 %s\n", layer->iface);*/
 
 
 

@@ -46,7 +46,7 @@ int main ( int argc, char * argv[]){  //preguntar si la longitud es optativa
     unsigned char buffer[longitud_datos_int];
     ipv4_addr_t direccion_origen;
     char direccion_origen_string[IPv4_STR_MAX_LENGTH];
-    char direccion_nuestra_string[IPv4_STR_MAX_LENGTH];
+    //char direccion_nuestra_string[IPv4_STR_MAX_LENGTH];
 
     /*ipv4_addr_str(ipv4_layer->addr, direccion_nuestra_string);
     printf("Enviando al Cliente Ethernet (%s):\n", direccion_nuestra_string);*/
