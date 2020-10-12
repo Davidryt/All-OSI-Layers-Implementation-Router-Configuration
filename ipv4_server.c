@@ -75,6 +75,7 @@ int main ( int argc, char * argv[]){  //preguntar si la longitud es optativa
         printf("Enviando %d bytes al Cliente Ethernet\n", payload_len);
         print_pkt(buffer, payload_len, 0);
 
+
         int datos_enviados_vuelta = ipv4_send(ipv4_layer, direccion_origen, (uint8_t)IPV4_PROTOCOL, buffer, longitud_datos_int);
         if (datos_enviados_vuelta == -1) {
             fprintf(stderr, "%s: ERROR en ipv4_send()\n", myself);

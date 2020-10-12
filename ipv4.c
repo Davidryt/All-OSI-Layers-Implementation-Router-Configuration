@@ -269,7 +269,7 @@ int ipv4_send (ipv4_layer_t * layer, ipv4_addr_t dst, uint8_t protocol, unsigned
     ip_frame.flag_mas_offset=0;
     ip_frame.ttl=htons(TTL);
     ip_frame.protocolo_ip=htons(protocol);
-    ip_frame.checksum_ip=htons(0);  
+    ip_frame.checksum_ip=htons(0); 
     memcpy(ip_frame.direccion_ip_origen, layer->addr, IPv4_ADDR_SIZE);
     memcpy(ip_frame.direccion_ip_destino, dst, IPv4_ADDR_SIZE);
     memcpy(ip_frame.payload_ip, payload, payload_len);
@@ -280,6 +280,7 @@ int ipv4_send (ipv4_layer_t * layer, ipv4_addr_t dst, uint8_t protocol, unsigned
     2. hacer htons correspondientes;
     3. header->checksum = ipv4_checksum();
     4. header->checksum = htons(header->checksum) */
+    ip_frame.checksum_ip = htons(ipv4_checksum((unsigned char *)&ip_frame, IP_HEADER_SIZE));
 
 
 
@@ -366,15 +367,16 @@ int ipv4_recv(ipv4_layer_t * layer, uint8_t protocol, unsigned char buffer [], i
         /* Comprobar si es la trama que estamos buscando */
         ip_frame_ptr = (struct ip_frame *) ip_buffer;
 
-        /*//OJOOO hay que comprobar el checksum
+        //OJOOO hay que comprobar el checksum
         uint16_t checksum_temporal=ntohs(ip_frame_ptr->checksum_ip); //Este es el que hemos recibido del paquete
         ip_frame_ptr->checksum_ip=htons(0);
-        uint16_t checksum_calculado=ipv4_checksum((unsigned char *)ip_frame_ptr, IP_HEADER_SIZE);  
+        //uint16_t checksum_calculado=ipv4_checksum((unsigned char *)ip_frame_ptr, IP_HEADER_SIZE);  
+        ip_frame_ptr->checksum_ip = ipv4_checksum((unsigned char *)ip_frame_ptr, IP_HEADER_SIZE);
 
-        if(checksum_temporal != checksum_calculado){
-            fprintf(stderr, "El checksum es incorrecto\n");
+        if(checksum_temporal != ip_frame_ptr->checksum_ip){
+            fprintf(stderr, "El checksum es incorrecto en ipv4_recv()\n");
             continue;
-        }*/
+        }
 
         is_my_ip = (memcmp(ip_frame_ptr->direccion_ip_destino, layer->addr, IPv4_ADDR_SIZE) == 0);
         //is_target_type = (ntohs(ip_frame_ptr->tipo_ip) == protocol);
