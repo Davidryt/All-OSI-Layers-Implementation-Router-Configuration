@@ -67,13 +67,13 @@ int main ( int argc, char * argv[]){  //preguntar si la longitud es optativa
         ipv4_addr_str(direccion_origen, direccion_origen_string);
     
         printf("Recibidos %d bytes del Cliente IPv4 (%s):\n", payload_len, direccion_origen_string);
-        print_pkt(buffer, payload_len, 0);
+        //print_pkt(buffer, payload_len, 0);
 
         /* Enviar la misma trama IPv4 de vuelta al Cliente */
         //ipv4_addr_str(ipv4_layer->addr, direccion_nuestra_string);
         //printf("Enviando %d bytes al Cliente Ethernet (%s):\n", payload_len, direccion_nuestra_string);
         printf("Enviando %d bytes al Cliente Ethernet\n", payload_len);
-        print_pkt(buffer, payload_len, 0);
+        //print_pkt(buffer, payload_len, 0);
 
 
         int datos_enviados_vuelta = ipv4_send(ipv4_layer, direccion_origen, (uint8_t)IPV4_PROTOCOL, buffer, longitud_datos_int);

@@ -356,12 +356,13 @@ int ipv4_recv(ipv4_layer_t * layer, uint8_t protocol, unsigned char buffer [], i
             return -1;
         } else if (longitud_datos_recibidos == 0) {
             /* Timeout! */
-            fprintf(stderr, "En eth_recv ha habido un timeout \n");
+            fprintf(stderr, "En eth_recv ha habido un timeout en ipv4_recv() \n");
             return 0;
         } else if (longitud_datos_recibidos < IP_HEADER_SIZE) {
             fprintf(stderr, "Trama de tamaño invalido: %d bytes\n", longitud_datos_recibidos);
             continue;
         }
+        printf("OJOOOO: La longitud recibida en ipv4_recv() es %d\n", buffer_ip_length);
 
 
         /* Comprobar si es la trama que estamos buscando */

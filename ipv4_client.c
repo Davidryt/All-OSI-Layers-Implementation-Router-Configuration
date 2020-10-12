@@ -93,7 +93,7 @@ printf("Enviando al Cliente Ethernet (%s):\n", direccion_nuestra_string);*/
         char direccion_origen_string[IPv4_STR_MAX_LENGTH];
         ipv4_addr_str(ip_origen_envio_paquete_ip, direccion_origen_string);
         printf("Recibidos %d bytes del Servidor IPv4 (%s)\n", longitud_datos_recibidos, direccion_origen_string);
-        print_pkt(buffer, longitud_datos_recibidos, 0); 
+        //print_pkt(buffer, longitud_datos_recibidos, 0); 
         //return longitud_datos_recibidos; //cambio
     }
 
