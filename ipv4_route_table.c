@@ -134,7 +134,7 @@ int ipv4_route_lookup ( ipv4_route_t * route, ipv4_addr_t addr )
 
     }
 
-    printf("El prefijo que devuelve la función lookup es: %d\n", prefix_length);
+    //printf("El prefijo que devuelve la función lookup es: %d\n", prefix_length);
 
     return prefix_length;
 }

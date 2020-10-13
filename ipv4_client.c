@@ -15,11 +15,12 @@ int main ( int argc, char * argv[]){
 
     /* Mostrar mensaje de ayuda si el número de argumentos es incorrecto */
     char * myself = basename(argv[0]);
-    if (argc != 5) {
-        printf("Uso: %s <direccion_ip> <fichero.txt> <route_table> <long>\n", myself);
+    if (argc != 6) {
+        printf("Uso: %s <direccion_ip> <fichero.txt> <route_table> <protocolo> <long>\n", myself);
         printf("        <direccion_ip>: La dirección IP destino\n");
         printf("        <fichero.txt>: Fichero de texto del cliente\n");
         printf("        <route_table>: La route table del cliente\n");
+        printf("        <protocolo>: El protocolo del cliente\n");
         printf("        <long>: Longitud de los datos\n");
         exit(-1);
     }
@@ -28,8 +29,10 @@ int main ( int argc, char * argv[]){
     char* direccion_ip_introducida_para_servidor = argv[1];
     char* ipv4_config_client=argv[2];
     char* ipv4_route_table_client=argv[3];
-    char* longitud_datos_string = argv[4];
+    char* protocolo_cliente=argv[4];
+    char* longitud_datos_string = argv[5];
 
+    int protocolo_cliente_int = atoi(protocolo_cliente);
     int longitud_datos_int = atoi(longitud_datos_string); //De string a número
 
     ipv4_addr_t ip_destino;
@@ -66,14 +69,14 @@ printf("Enviando al Cliente Ethernet (%s):\n", direccion_nuestra_string);*/
     /* Enviar trama ipv4 al Servidor */
     printf("Enviando %d bytes al Servidor IPv4 (%s):\n", longitud_datos_int, direccion_ip_introducida_para_servidor);
   
-    int bytes_enviados = ipv4_send(ipv4_layer, ip_destino, (uint8_t)IPV4_PROTOCOL, payload, longitud_datos_int);
+    int bytes_enviados = ipv4_send(ipv4_layer, ip_destino, (uint8_t)protocolo_cliente_int, payload, longitud_datos_int);
     if (bytes_enviados < 0) {
         fprintf(stderr, "ERROR en ipv4_send()\n");
         exit(-1);
     }
     else if(bytes_enviados>0){  //imprimirlo por pantalla
         printf("Se han enviado en ipv4_send(): %d\n", bytes_enviados);
-        //return bytes_enviados; //cambio
+        
     }   
 
 
@@ -83,7 +86,7 @@ printf("Enviando al Cliente Ethernet (%s):\n", direccion_nuestra_string);*/
     unsigned char buffer[longitud_datos_int];
     ipv4_addr_t ip_origen_envio_paquete_ip;
 
-    int longitud_datos_recibidos = ipv4_recv(ipv4_layer, (uint8_t)IPV4_PROTOCOL, buffer, ip_origen_envio_paquete_ip, longitud_datos_int, timeout); 
+    int longitud_datos_recibidos = ipv4_recv(ipv4_layer, (uint8_t)protocolo_cliente_int, buffer, ip_origen_envio_paquete_ip, longitud_datos_int, timeout); 
     if (longitud_datos_recibidos<0) {
         fprintf(stderr, "%s: ERROR en ipv4_recv()\n", myself);
     } else if (longitud_datos_recibidos == 0) {
@@ -93,8 +96,8 @@ printf("Enviando al Cliente Ethernet (%s):\n", direccion_nuestra_string);*/
         char direccion_origen_string[IPv4_STR_MAX_LENGTH];
         ipv4_addr_str(ip_origen_envio_paquete_ip, direccion_origen_string);
         printf("Recibidos %d bytes del Servidor IPv4 (%s)\n", longitud_datos_recibidos, direccion_origen_string);
-        //print_pkt(buffer, longitud_datos_recibidos, 0); 
-        //return longitud_datos_recibidos; //cambio
+        print_pkt(buffer, longitud_datos_recibidos, 0); 
+        
     }
 
 
