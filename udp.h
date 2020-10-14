@@ -2,6 +2,7 @@
 #define _UDP_H
 
 #include <stdint.h>
+#include "ipv4.h"
 
 
 typedef struct udp_layer udp_layer_t;
@@ -12,11 +13,8 @@ int udp_close (udp_layer_t * layer);
 
 int udp_send (udp_layer_t * layer, ipv4_addr_t dst, uint16_t puerto_destino, unsigned char * payload, int payload_len);
 
-int udp_recv(udp_layer_t * layer, unsigned char buffer [], ipv4_addr_t sender, int buf_len, long int timeout); //faltan cosas
+int udp_recv(udp_layer_t * layer, unsigned char buffer [], uint16_t *puerto_origen, ipv4_addr_t sender, int buf_len, long int timeout);
 
 int funcion_numero_aleatorio_puerto();
-
-
-
 
 #endif /* _UDP_H */

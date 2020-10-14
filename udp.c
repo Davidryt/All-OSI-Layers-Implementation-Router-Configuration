@@ -10,12 +10,14 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <libgen.h>
+#include <time.h>
 
-#define UDP_MTU 
 
 #define UDP_HEADER_SIZE 8
 
-#define UDP_PROTOCOL 
+#define UDP_MTU (IPV4_MTU-UDP_HEADER_SIZE)
+
+#define UDP_PROTOCOL 0x11
 
 
 
@@ -53,18 +55,18 @@ udp_layer_t* udp_open(char * file_conf, char * file_conf_route, uint16_t puerto_
 
     /* Abrir el interfaz subyacente: en este caso IPv4 */
     ipv4_layer_t * ipv4_layer = ipv4_open(file_conf, file_conf_route);
-    if (ipv4_layer == NULL) {
+    if (ipv4_layer == NULL) { 
         fprintf(stderr, "udp_open(): ERROR en ipv4_open()\n");
         return NULL;
     }  
     layer->ipv4_layer = ipv4_layer;
 
     //Elegir el puerto origen de escucha
-    if(puerto_origen ){
+    if(puerto_origen != 0){
         layer->puerto_escucha=puerto_origen;
     }
     else{
-        layer->puerto_escucha=funcion_numero_aleatorio_puerto;
+        layer->puerto_escucha=funcion_numero_aleatorio_puerto();
     }
 
 
@@ -134,7 +136,7 @@ int udp_send (udp_layer_t * layer, ipv4_addr_t dst, uint16_t puerto_destino, uns
 
 
 
-int udp_recv(udp_layer_t * layer, unsigned char buffer [], ipv4_addr_t sender, int buf_len, long int timeout){ //faltan parámetros
+int udp_recv(udp_layer_t * layer, unsigned char buffer [], uint16_t *puerto_origen, ipv4_addr_t sender, int buf_len, long int timeout){ 
 
     /* Inicializar temporizador para mantener timeout si se reciben tramas con tipo incorrecto. */
     timerms_t timer;
@@ -144,8 +146,6 @@ int udp_recv(udp_layer_t * layer, unsigned char buffer [], ipv4_addr_t sender, i
     unsigned char udp_buffer[buffer_udp_length];
 
     struct udp_frame * udp_frame_ptr = NULL;
-
-    int is_my_puerto;
 
     do {
         timerms_elapsed(&timer); //Devuelve el tiempo cada iteración
@@ -164,23 +164,24 @@ int udp_recv(udp_layer_t * layer, unsigned char buffer [], ipv4_addr_t sender, i
             fprintf(stderr, "Trama de tamaño invalido: %d bytes\n", longitud_datos_recibidos);
             continue;
         }
-        printf("OJOOOO: La longitud recibida en udp_recv() es %d\n", buffer_ip_length);
+        printf("OJOOOO: La longitud recibida en udp_recv() es %d\n", buffer_udp_length);
 
 
         /* Comprobar si es la trama que estamos buscando */
         udp_frame_ptr = (struct udp_frame *) udp_buffer;
 
-        is_my_puerto = (memcmp(udp_frame_ptr->puerto_, layer->puerto_escucha, "TAMAÑO") == 0);
 
-    } while ( ! (is_my_puerto) );
-
+    } while ( ! (ntohs(udp_frame_ptr->puerto_destino)==(layer->puerto_escucha)) );
 
     /* Trama recibida con 'tipo' indicado. Copiar datos y dirección MAC origen */
-    memcpy(sender, ip_frame_ptr->direccion_ip_origen, IPv4_ADDR_SIZE);
-    int payload_len = (udp_frame_ptr->longitud_total_udp)-IP_HEADER_SIZE;
+    //memcpy(sender, udp_frame_ptr->direccion_ip_origen, IPv4_ADDR_SIZE);
+    int payload_len = ntohs((udp_frame_ptr->longitud_total_udp))-UDP_HEADER_SIZE;
     if (buf_len > payload_len) {
         buf_len = payload_len; //Reduce el tamaño del buffer al tamaño de datos útiles recibidos
     }
+
+    *puerto_origen=ntohs(udp_frame_ptr->puerto_origen);
+
     memcpy(buffer, udp_frame_ptr->payload_udp, buf_len);
 
     return payload_len;
@@ -200,7 +201,7 @@ int funcion_numero_aleatorio_puerto(){
     /* Generar número aleatorio entre 0 y RAND_MAX */
 	int dice = rand();
 	/* Número entero aleatorio entre 1 y 10 */
-	puerto_aleatorio = 1024 + (int) (3000.0 * dice / (RAND_MAX));
+	int puerto_aleatorio = 1024 + (int) (65535.0 * dice / (RAND_MAX));
 	printf("%i\n", dice);
 
     return puerto_aleatorio;
