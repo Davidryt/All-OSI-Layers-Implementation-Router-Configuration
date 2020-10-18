@@ -1,0 +1,80 @@
+lightning start RYSCA/simple_con_router
+lightning start RYSCA/simple
+
+
+# ipv4_config_client.txt
+#
+Interface eth1
+IPv4Address 192.100.100.101
+SubnetMask 255.255.255.0
+
+# ipv4_config_server.txt
+#
+Interface eth1
+IPv4Address 192.100.100.102
+SubnetMask 255.255.255.0
+
+# ipv4_route_table_client.txt
+#
+# SubnetAddr    SubnetMask      Iface    Gateway
+0.0.0.0         0.0.0.0         eth1     192.100.100.102   
+192.100.100.0   255.255.255.0   eth1     0.0.0.0
+
+# ipv4_route_table_server.txt
+#
+# SubnetAddr    SubnetMask      Iface    Gateway   
+0.0.0.0         0.0.0.0         eth1     192.100.100.101
+192.100.100.0   255.255.255.0   eth1     0.0.0.0
+
+
+
+
+
+AHORA TODA LA CONFIGURACIÓN EN EL ESCENARIO CON ROUTER
+
+HOSTX (CLIENTE):
+sudo ip addr add 193.168.3.1/24 dev eth1
+sudo ip ro add 193.168.2.0/24 via 193.168.3.2 dev eth1
+
+HOSTY (SERVIDOR):
+sudo ip addr add 193.168.2.1/24 dev eth1
+sudo ip ro add 193.168.3.0/24 via 193.168.2.2 dev eth1
+
+ROUTER:
+conf t
+interface eth0.0
+ip addr 193.168.3.2/24
+exit
+interface eth0.1
+ip addr 193.168.2.2/24
+exit
+exit
+
+# ipv4_config_client.txt
+#
+Interface eth1
+IPv4Address 193.168.3.1
+SubnetMask 255.255.255.0
+
+# ipv4_config_server.txt
+#
+Interface eth1
+IPv4Address 193.168.2.1
+SubnetMask 255.255.255.0
+
+# ipv4_route_table_client.txt
+#
+# SubnetAddr    SubnetMask      Iface    Gateway
+0.0.0.0         0.0.0.0         eth1     193.168.3.2   
+193.168.3.0     255.255.255.0   eth1     0.0.0.0
+
+# ipv4_route_table_server.txt
+#
+# SubnetAddr    SubnetMask      Iface    Gateway   
+0.0.0.0         0.0.0.0         eth1     193.168.2.2
+193.168.2.0     255.255.255.0   eth1     0.0.0.0
+
+
+
+
+

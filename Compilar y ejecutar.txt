@@ -1,0 +1,24 @@
+lightning start RYSCA/simple_con_router
+lightning start RYSCA/simple
+
+
+COMPILAR ARP:    rawnetcc /tmp/arp_client arp.c ipv4.c eth.c ipv4_config.c ipv4_route_table.c arp_client.c
+EJECUTAR ARP:    /tmp/arp_client eth1 <direccion_ip_al_que_le_quieres_enviar> <direccion_ip_origen> 
+
+
+
+
+COMPILAR IP CLIENTE:    rawnetcc /tmp/ipv4_client arp.c ipv4.c eth.c ipv4_config.c ipv4_route_table.c ipv4_client.c
+COMPILAR IP SERVIDOR:   rawnetcc /tmp/ipv4_server arp.c ipv4.c eth.c ipv4_config.c ipv4_route_table.c ipv4_server.c
+
+EJECUTAR IP CLIENTE:    /tmp/ipv4_client <direccion_ip_destino> ipv4_config_client.txt ipv4_route_table_client.txt protocolo 100
+EJECUTAR IP SERVIDOR:   /tmp/ipv4_server ipv4_config_server.txt ipv4_route_table_server.txt protocolo 100
+
+
+
+
+COMPILAR UDP CLIENTE:    rawnetcc /tmp/udp_client arp.c ipv4.c eth.c ipv4_config.c ipv4_route_table.c udp.c udp_client.c
+COMPILAR UDP SERVIDOR:   rawnetcc /tmp/udp_server arp.c ipv4.c eth.c ipv4_config.c ipv4_route_table.c udp.c udp_server.c
+
+EJECUTAR UDP CLIENTE:    /tmp/udp_client <direccion_ip_destino> ipv4_config_client.txt ipv4_route_table_client.txt <puerto> 36 
+EJECUTAR UDP SERVIDOR:   /tmp/udp_server ipv4_config_server.txt ipv4_route_table_server.txt <puerto> 36

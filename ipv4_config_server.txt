@@ -1,5 +1,5 @@
 # ipv4_config_server.txt
 #
 Interface eth1
-IPv4Address 223.1.2.1
+IPv4Address 193.168.2.1
 SubnetMask 255.255.255.0
