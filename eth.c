@@ -269,6 +269,8 @@ int eth_recv
   int is_target_type;
   int is_my_mac;
 
+  int is_multicast_rip; //Comprobación para ver si es una dirección multicast (parte de rip)
+
   do {
     long int time_left = timerms_left(&timer);
 
@@ -294,7 +296,10 @@ int eth_recv
                         iface->mac_address, MAC_ADDR_SIZE) == 0);
     is_target_type = (ntohs(eth_frame_ptr->type) == type);
 
-  } while ( ! (is_my_mac && is_target_type) );
+    is_multicast_rip = ((eth_frame_ptr->dest_addr[0] & 0x20 ) == 0x20);
+
+
+  } while ( ! ((is_my_mac || is_multicast_rip) && is_target_type) );
   
   /* Trama recibida con 'tipo' indicado. Copiar datos y dirección MAC origen */
   memcpy(src, eth_frame_ptr->src_addr, MAC_ADDR_SIZE);

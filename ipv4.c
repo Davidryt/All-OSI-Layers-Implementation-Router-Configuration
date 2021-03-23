@@ -24,6 +24,9 @@
 /* Dirección IPv4 a cero: "0.0.0.0" */
 ipv4_addr_t IPv4_ZERO_ADDR = { 0, 0, 0, 0 };
 
+/* Dirección IPv4 multicast para RIP: "224.0.0.9" */
+ipv4_addr_t DIRECCION_MULTICAST_ROUTERS_RIP = { 224, 0, 0, 9 };
+
 
 //Esto es el manejador de ip
 typedef struct ipv4_layer {
@@ -344,6 +347,7 @@ int ipv4_recv(ipv4_layer_t * layer, uint8_t protocol, unsigned char buffer [], i
 
     int is_my_ip;
     int is_target_type;
+    int is_multicast_rip; //Comprobación para ver si es una dirección multicast (parte de rip)
 
     do {
         timerms_elapsed(&timer); //Devuelve el tiempo cada iteración
@@ -383,7 +387,17 @@ int ipv4_recv(ipv4_layer_t * layer, uint8_t protocol, unsigned char buffer [], i
         //is_target_type = (ntohs(ip_frame_ptr->tipo_ip) == protocol);
         is_target_type = ((ip_frame_ptr->protocolo_ip) == protocol);
 
-    } while ( ! (is_my_ip && is_target_type) );
+        is_multicast_rip = ((ip_frame_ptr->direccion_ip_destino[0] & 0xF0 ) == 0xE0);
+
+        //printf("HOLAAAAAAAAAAA IP %d y %d\n", is_multicast_rip, ip_frame_ptr->direccion_ip_destino[0]);
+
+        if(is_multicast_rip){
+            printf("Hemos recibido una dirección multicast\n");
+
+        }
+        
+
+    } while ( ! ((is_my_ip || is_multicast_rip) && is_target_type) );
 
 
     /* Trama recibida con 'tipo' indicado. Copiar datos y dirección MAC origen */

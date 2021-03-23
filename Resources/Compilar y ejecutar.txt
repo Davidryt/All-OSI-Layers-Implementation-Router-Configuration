@@ -1,24 +1,41 @@
-lightning start RYSCA/simple_con_router
-lightning start RYSCA/simple
-
+Este es el código en "lightning start RYSCA/simple":
 
 COMPILAR ARP:    rawnetcc /tmp/arp_client arp.c ipv4.c eth.c ipv4_config.c ipv4_route_table.c arp_client.c
-EJECUTAR ARP:    /tmp/arp_client eth1 <direccion_ip_al_que_le_quieres_enviar> <direccion_ip_origen> 
-
+EJECUTAR ARP:    /tmp/arp_client eth1 192.100.100.102 192.100.100.101 
 
 
 
 COMPILAR IP CLIENTE:    rawnetcc /tmp/ipv4_client arp.c ipv4.c eth.c ipv4_config.c ipv4_route_table.c ipv4_client.c
 COMPILAR IP SERVIDOR:   rawnetcc /tmp/ipv4_server arp.c ipv4.c eth.c ipv4_config.c ipv4_route_table.c ipv4_server.c
 
-EJECUTAR IP CLIENTE:    /tmp/ipv4_client <direccion_ip_destino> ipv4_config_client.txt ipv4_route_table_client.txt protocolo 100
-EJECUTAR IP SERVIDOR:   /tmp/ipv4_server ipv4_config_server.txt ipv4_route_table_server.txt protocolo 100
-
+EJECUTAR IP CLIENTE:    /tmp/ipv4_client 192.100.100.102 ./SIMPLE/ipv4_config_client.txt ./SIMPLE/ipv4_route_table_client.txt 5 100
+EJECUTAR IP SERVIDOR:   /tmp/ipv4_server ./SIMPLE/ipv4_config_server.txt ./SIMPLE/ipv4_route_table_server.txt 5 100
 
 
 
 COMPILAR UDP CLIENTE:    rawnetcc /tmp/udp_client arp.c ipv4.c eth.c ipv4_config.c ipv4_route_table.c udp.c udp_client.c
 COMPILAR UDP SERVIDOR:   rawnetcc /tmp/udp_server arp.c ipv4.c eth.c ipv4_config.c ipv4_route_table.c udp.c udp_server.c
 
-EJECUTAR UDP CLIENTE:    /tmp/udp_client <direccion_ip_destino> ipv4_config_client.txt ipv4_route_table_client.txt <puerto> 36 
-EJECUTAR UDP SERVIDOR:   /tmp/udp_server ipv4_config_server.txt ipv4_route_table_server.txt <puerto> 36
+EJECUTAR UDP CLIENTE:    /tmp/udp_client 192.100.100.102 ./SIMPLE/ipv4_config_client.txt ./SIMPLE/ipv4_route_table_client.txt 500 36 
+EJECUTAR UDP SERVIDOR:   /tmp/udp_server ./SIMPLE/ipv4_config_server.txt ./SIMPLE/ipv4_route_table_server.txt 500 36
+
+
+
+
+
+
+Este es el código en "lightning start RYSCA/simple_con_router":
+
+COMPILAR IP CLIENTE:    rawnetcc /tmp/ipv4_client arp.c ipv4.c eth.c ipv4_config.c ipv4_route_table.c ipv4_client.c
+COMPILAR IP SERVIDOR:   rawnetcc /tmp/ipv4_server arp.c ipv4.c eth.c ipv4_config.c ipv4_route_table.c ipv4_server.c
+
+EJECUTAR IP CLIENTE:    /tmp/ipv4_client 193.168.2.1 ./ROUTER/ipv4_config_client.txt ./ROUTER/ipv4_route_table_client.txt 5 100
+EJECUTAR IP SERVIDOR:   /tmp/ipv4_server ./ROUTER/ipv4_config_server.txt ./ROUTER/ipv4_route_table_server.txt 5 100
+
+
+
+COMPILAR UDP CLIENTE:    rawnetcc /tmp/udp_client arp.c ipv4.c eth.c ipv4_config.c ipv4_route_table.c udp.c udp_client.c
+COMPILAR UDP SERVIDOR:   rawnetcc /tmp/udp_server arp.c ipv4.c eth.c ipv4_config.c ipv4_route_table.c udp.c udp_server.c
+
+EJECUTAR UDP CLIENTE:    /tmp/udp_client 193.168.2.1 ./ROUTER/ipv4_config_client.txt ./ROUTER/ipv4_route_table_client.txt 5000 36 
+EJECUTAR UDP SERVIDOR:   /tmp/udp_server ./ROUTER/ipv4_config_server.txt ./ROUTER/ipv4_route_table_server.txt 5000 36
